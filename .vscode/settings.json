@@ -5,7 +5,7 @@
   "[yaml]": { "editor.defaultFormatter": "redhat.vscode-yaml", "editor.formatOnSave": true },
   "yaml.format.enable": true,
   "yaml.schemas": {
-    "kubernetes": ["infra/**/*.yaml", "workloads/**/*.yaml"],
+    "kubernetes": ["infra/**/*.yaml", "!infra/**/values.yaml", "workloads/**/*.yaml", "!workloads/**/values.yaml"],
     "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/application_v1alpha1.json": ["apps/*.yaml", "bootstrap/*.yaml"],
     "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/bitnami.com/sealedsecret_v1alpha1.json": ["workloads/**/sealed-secret*.yaml"]
   }

@@ -13,7 +13,7 @@ spec:
         releaseName: argocd
         valueFiles:
           - $values/infra/argocd/values.yaml
-    - repoURL: REPO_URL
+    - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values
   destination:

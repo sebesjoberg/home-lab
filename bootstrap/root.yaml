@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: REPO_URL
+    repoURL: https://github.com/sebesjoberg/home-lab
     targetRevision: main
     path: apps
   destination:
