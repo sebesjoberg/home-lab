@@ -1,0 +1,11 @@
+configs:
+  params:
+    server.insecure: true
+  cm:
+    timeout.reconciliation: 180s
+server:
+  extraArgs: []
+dex:
+  enabled: false
+notifications:
+  enabled: false
