@@ -5,7 +5,14 @@ configs:
   params:
     server.insecure: true
   cm:
+    url: http://argocd.localtest.me:8080
     timeout.reconciliation: 180s
+    oidc.config: |
+      name: Authentik
+      issuer: http://auth.localtest.me:8080/application/o/argocd/
+      clientID: argocd
+      clientSecret: $argocd-oidc:clientSecret
+      requestedScopes: ["openid", "profile", "email"]
     resource.customizations.health.argoproj.io_Application: |
       hs = {}
       hs.status = "Progressing"
@@ -17,6 +24,10 @@ configs:
         end
       end
       return hs
+  rbac:
+    policy.default: ""
+    policy.csv: |
+      g, admins, role:admin
 
 server:
   ingress:

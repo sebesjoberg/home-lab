@@ -16,6 +16,9 @@ spec:
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/argocd/sealed
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

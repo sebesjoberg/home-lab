@@ -1,0 +1,12 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: openbao-oidc
+  namespace: openbao
+spec:
+  encryptedData:
+    client-secret: AgAHEV3VoLvup0r5ApuKvA7YO33fOJ7fCgH7GEdL0D8UfVWf3ii/YoalNjPrWBcKzZq79ZSSg333Kjw4wPA9W4HPAhxfoiLgWp517o0Vau6vY/9p3mdctDlfi5WRAPRPv8YnLxISMEGwJncojvtB5FUwuTz4K9qRbHku2Dszv1Wt+SL+D7SONc3f65UF1YXnePlRZXzdPaRqaVs3SAADJyhmJg/yz9AL2w0DmSIacXXMWU21iSNoSmdYHJod1VGYBehLlBWOrdYwob/80TViOxxLqBYtKOCTkaKyqhcvVgoPjWEapmh9Yr6ZK06yPQwmidAIyfrHpko7OCVLV1p9JLamtLLU8TevT+2Gt12IVjTHs8x+34tIKgneYnKzPvaOmdtfQbeMvIjpi9rcTEbGewtvSFEK919XmbfzeacIcNDkDbwPijXf6uh5a0TuIa6bVwMRK205/q1Nm4FkwIYVVgxNWu1H8NbXjT3CAv7S+zRh1jaClfKe51nTmNTVtcSYa0A63O9MxlX9O8UTDOEzsIdA7jKNkg1KfZWsPyy/j3XED5IHd7Gi/1RRdKQmQXIc6otvLrddzHN72Y5bkNH3meSbW3ROxGR0IUxEBleYIdoNjLW9HDlNIr/LMAk73j+N+Ag9r4RhQHgmSHVCx0b5NbrfQW7UqqOa2MvUDtO+1o3DEmqTc+9qmq+HG83wqKNZtfhX6jhvXJQXVx6kgT42wjucbPv7HRphhqheRVHAKnFEf6GFeAtxZPk3+Qy6zZUyGi6GPN2tMqkybHbymzih8mlK
+  template:
+    metadata:
+      name: openbao-oidc
+      namespace: openbao
