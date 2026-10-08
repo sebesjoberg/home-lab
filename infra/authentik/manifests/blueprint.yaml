@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprints
+  namespace: authentik
+data:
+  homelab-users.yaml: |
+    version: 1
+    metadata:
+      name: homelab-users
+    entries:
+      - model: authentik_core.group
+        id: admins
+        identifiers:
+          name: admins
+        attrs:
+          is_superuser: true
+      - model: authentik_core.user
+        identifiers:
+          username: sebesjoberg
+        attrs:
+          name: Sebastian
+          email: sebesjoberg@gmail.com
+          groups:
+            - !KeyOf admins
+          password_hash: !Env HOMELAB_USER_PASSWORD_HASH
