@@ -25,6 +25,7 @@ helm upgrade --install argocd argo/argo-cd `
 
 kubectl apply -f "$root\bootstrap\root.yaml"
 
-Write-Host "Argo CD admin password:" -ForegroundColor Green
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) }
-Write-Host "UI: http://argocd.localtest.me:8080 (user admin)" -ForegroundColor Green
+Write-Host "Log in with Authentik (about 5 minutes after startup):" -ForegroundColor Green
+Write-Host "  http://auth.localtest.me:8080     Authentik" -ForegroundColor Green
+Write-Host "  http://argocd.localtest.me:8080   Argo CD" -ForegroundColor Green
+Write-Host "  http://bao.localtest.me:8080      OpenBao" -ForegroundColor Green
