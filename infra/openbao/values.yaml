@@ -1,0 +1,124 @@
+injector:
+  enabled: false
+
+server:
+  dataStorage:
+    size: 1Gi
+
+  extraSecretEnvironmentVars:
+    - envName: UNSEAL_KEY
+      secretName: openbao-bootstrap
+      secretKey: unseal-key
+    - envName: USER_PASSWORD
+      secretName: openbao-bootstrap
+      secretKey: user-password
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - host: bao.localtest.me
+        paths: []
+
+  standalone:
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable     = 1
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      storage "pebbledb" {
+        path = "/openbao/data/pebbledb"
+      }
+
+      seal "static" {
+        current_key_id = "homelab-1"
+        current_key    = "env://UNSEAL_KEY"
+      }
+
+      initialize "secrets" {
+        request "enable-kv" {
+          operation = "update"
+          path      = "sys/mounts/secret"
+          data = {
+            type    = "kv"
+            options = { version = "2" }
+          }
+        }
+      }
+
+      initialize "policies" {
+        request "admin" {
+          operation = "update"
+          path      = "sys/policies/acl/admin"
+          data = {
+            policy = <<EOT
+      path "*" {
+        capabilities = ["create", "read", "update", "patch", "delete", "list", "sudo"]
+      }
+      EOT
+          }
+        }
+        request "external-secrets-read" {
+          operation = "update"
+          path      = "sys/policies/acl/external-secrets-read"
+          data = {
+            policy = <<EOT
+      path "secret/data/*" {
+        capabilities = ["read"]
+      }
+      path "secret/metadata/*" {
+        capabilities = ["read", "list"]
+      }
+      EOT
+          }
+        }
+      }
+
+      initialize "userpass" {
+        request "enable" {
+          operation = "update"
+          path      = "sys/auth/userpass"
+          data      = { type = "userpass" }
+        }
+        request "personal-user" {
+          operation = "update"
+          path      = "auth/userpass/users/sebesjoberg"
+          data = {
+            password = {
+              eval_type       = "string"
+              eval_source     = "env"
+              env_var         = "USER_PASSWORD"
+              require_present = true
+            }
+            token_policies = ["admin"]
+          }
+        }
+      }
+
+      initialize "kubernetes" {
+        request "enable" {
+          operation = "update"
+          path      = "sys/auth/kubernetes"
+          data      = { type = "kubernetes" }
+        }
+        request "config" {
+          operation = "update"
+          path      = "auth/kubernetes/config"
+          data      = { kubernetes_host = "https://kubernetes.default.svc" }
+        }
+        request "external-secrets-role" {
+          operation = "update"
+          path      = "auth/kubernetes/role/external-secrets"
+          data = {
+            bound_service_account_names      = ["external-secrets"]
+            bound_service_account_namespaces = ["external-secrets"]
+            audience                         = "openbao"
+            token_policies                   = ["external-secrets-read"]
+            token_ttl                        = "1h"
+          }
+        }
+      }
