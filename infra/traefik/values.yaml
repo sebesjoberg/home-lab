@@ -9,8 +9,10 @@ updateStrategy:
 ports:
   web:
     hostPort: 80
+    asDefault: true
   websecure:
     hostPort: 443
+    asDefault: true
 
 service:
   spec:
