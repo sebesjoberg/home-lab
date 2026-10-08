@@ -9,6 +9,7 @@ updateStrategy:
 ports:
   web:
     hostPort: 80
+    exposedPort: 8080
     asDefault: true
   websecure:
     hostPort: 443
@@ -19,6 +20,8 @@ service:
     type: ClusterIP
 
 providers:
+  kubernetesCRD:
+    allowCrossNamespace: true
   kubernetesIngress:
     publishedService:
       enabled: false
@@ -30,3 +33,6 @@ ingressRoute:
     enabled: true
     matchRule: Host(`traefik.localtest.me`)
     entryPoints: ["web"]
+    middlewares:
+      - name: authentik
+        namespace: authentik
