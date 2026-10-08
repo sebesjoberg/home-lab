@@ -69,7 +69,6 @@ data:
           client_type: confidential
           client_id: openbao
           client_secret: !Env OPENBAO_CLIENT_SECRET
-          client_type: confidential
           grant_types:
             - authorization_code
             - refresh_token
