@@ -39,7 +39,6 @@ data:
           client_type: confidential
           client_id: argocd
           client_secret: !Env ARGOCD_CLIENT_SECRET
-          client_type: confidental
           grant_types:
             - authorization_code
             - refresh_token
@@ -70,7 +69,7 @@ data:
           client_type: confidential
           client_id: openbao
           client_secret: !Env OPENBAO_CLIENT_SECRET
-          client_type: confidental
+          client_type: confidential
           grant_types:
             - authorization_code
             - refresh_token
