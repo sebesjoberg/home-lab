@@ -70,6 +70,10 @@ data:
           client_type: confidential
           client_id: openbao
           client_secret: !Env OPENBAO_CLIENT_SECRET
+          client_type: confidental
+          grant_types:
+            - authorization_code
+            - refresh_token
           redirect_uris:
             - matching_mode: strict
               url: http://bao.localtest.me:8080/ui/vault/auth/oidc/oidc/callback
