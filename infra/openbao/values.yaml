@@ -109,7 +109,7 @@ server:
         }
       }
 
-      initialize "kubernetes" {extraSecretEnvironmentVars
+      initialize "kubernetes" {
         request "enable" {
           operation = "update"
           path      = "sys/auth/kubernetes"

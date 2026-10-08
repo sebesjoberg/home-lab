@@ -42,6 +42,10 @@ server:
     hosts:
       - auth.localtest.me
 
+authentik:
+  web:
+    base_url: htttp://auth.localtest.me:8080
+
 postgresql:
   enabled: true
   auth:
