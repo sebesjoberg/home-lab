@@ -27,4 +27,4 @@ kubectl apply -f "$root\bootstrap\root.yaml"
 
 Write-Host "Argo CD admin password:" -ForegroundColor Green
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) }
-Write-Host "UI: kubectl -n argocd port-forward svc/argocd-server 8081:80  ->  http://localhost:8081" -ForegroundColor Green
+Write-Host "UI: http://argocd.localtest.me:8080 (user admin)" -ForegroundColor Green

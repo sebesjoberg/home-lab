@@ -1,3 +1,6 @@
+global:
+  domain: argocd.localtest.me
+
 configs:
   params:
     server.insecure: true
@@ -14,6 +17,11 @@ configs:
         end
       end
       return hs
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
 dex:
   enabled: false
 notifications:
