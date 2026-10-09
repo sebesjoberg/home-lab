@@ -3,7 +3,7 @@ param(
 )
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
-$root = Split-Path $PSScriptRoot
+$root = Split-Path (Split-Path $PSScriptRoot)
 
 kind create cluster --config "$root\kind\kind-config.yaml"
 kubectl cluster-info --context kind-homelab
@@ -21,9 +21,10 @@ helm upgrade --install argocd argo/argo-cd `
   --namespace argocd --create-namespace `
   --version 10.10.0 `
   -f "$root\infra\argocd\values.yaml" `
+  -f "$root\infra\kind\argocd\values.yaml" `
   --wait
 
-kubectl apply -f "$root\bootstrap\root.yaml"
+kubectl apply -f "$root\bootstrap\root-kind.yaml"
 
 Write-Host "Log in with Authentik (about 5 minutes after startup):" -ForegroundColor Green
 Write-Host "  http://auth.localtest.me:8080     Authentik" -ForegroundColor Green

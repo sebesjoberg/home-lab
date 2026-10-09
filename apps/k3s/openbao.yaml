@@ -1,30 +1,35 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: openbao
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+
 spec:
   project: default
   sources:
-    - repoURL: https://argoproj.github.io/argo-helm
-      chart: argo-cd
-      targetRevision: 10.10.0
+    - repoURL: https://openbao.github.io/openbao-helm
+      chart: openbao
+      targetRevision: 0.30.2
       helm:
-        releaseName: argocd
+        releaseName: openbao
         valueFiles:
-          - $values/infra/argocd/values.yaml
+          - $values/infra/openbao/values.yaml
+          - $values/infra/k3s/openbao/values.yaml
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
-      path: infra/argocd/sealed
+      path: infra/openbao/sealed
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: openbao
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - ServerSideApply=true
+      - CreateNamespace=true

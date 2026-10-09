@@ -1,20 +1,9 @@
-global:
-  domain: argocd.localtest.me
-
 configs:
   params:
     server.insecure: true
   cm:
-    url: http://argocd.localtest.me:8080
     timeout.reconciliation: 180s
     admin.enabled: "false"
-    
-    oidc.config: |
-      name: Authentik
-      issuer: http://auth.localtest.me:8080/application/o/argocd/
-      clientID: argocd
-      clientSecret: $argocd-oidc:clientSecret
-      requestedScopes: ["openid", "profile", "email"]
     resource.customizations.health.argoproj.io_Application: |
       hs = {}
       hs.status = "Progressing"

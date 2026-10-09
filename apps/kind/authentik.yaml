@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.8.3
+      helm:
+        releaseName: authentik
+        valueFiles:
+          - $values/infra/authentik/values.yaml
+          - $values/infra/kind/authentik/values.yaml
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/authentik/sealed
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/kind/authentik/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

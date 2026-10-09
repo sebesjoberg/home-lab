@@ -1,0 +1,26 @@
+nodeSelector:
+  ingress-ready: "true"
+
+ports:
+  web:
+    hostPort: 80
+    exposedPort: 8080
+    asDefault: true
+  websecure:
+    hostPort: 443
+    asDefault: true
+
+service:
+  spec:
+    type: ClusterIP
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: false
+    ingressEndpoint:
+      ip: 127.0.0.1
+
+ingressRoute:
+  dashboard:
+    matchRule: Host(`traefik.localtest.me`)

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 10.10.0
+      helm:
+        releaseName: argocd
+        valueFiles:
+          - $values/infra/argocd/values.yaml
+          - $values/infra/kind/argocd/values.yaml
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/argocd/sealed
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

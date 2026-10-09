@@ -1,37 +1,15 @@
-nodeSelector:
-  ingress-ready: "true"
-
 updateStrategy:
   rollingUpdate:
     maxUnavailable: 1
     maxSurge: 0
 
-ports:
-  web:
-    hostPort: 80
-    exposedPort: 8080
-    asDefault: true
-  websecure:
-    hostPort: 443
-    asDefault: true
-
-service:
-  spec:
-    type: ClusterIP
-
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
-  kubernetesIngress:
-    publishedService:
-      enabled: false
-    ingressEndpoint:
-      ip: 127.0.0.1
 
 ingressRoute:
   dashboard:
     enabled: true
-    matchRule: Host(`traefik.localtest.me`)
     entryPoints: ["web"]
     middlewares:
       - name: authentik

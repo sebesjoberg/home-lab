@@ -1,0 +1,19 @@
+ports:
+  web:
+    exposedPort: 80
+    asDefault: true
+  websecure:
+    asDefault: true
+
+service:
+  spec:
+    type: LoadBalancer
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
+ingressRoute:
+  dashboard:
+    matchRule: Host(`traefik.lab.home`)

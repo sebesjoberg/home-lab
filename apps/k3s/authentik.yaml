@@ -1,31 +1,33 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: openbao
+  name: authentik
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
-
 spec:
   project: default
   sources:
-    - repoURL: https://openbao.github.io/openbao-helm
-      chart: openbao
-      targetRevision: 0.30.2
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.8.3
       helm:
-        releaseName: openbao
+        releaseName: authentik
         valueFiles:
-          - $values/infra/openbao/values.yaml
+          - $values/infra/authentik/values.yaml
+          - $values/infra/k3s/authentik/values.yaml
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
-      path: infra/openbao/sealed
-
+      path: infra/authentik/sealed
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/k3s/authentik/manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: openbao
+    namespace: authentik
   syncPolicy:
     automated:
       prune: true

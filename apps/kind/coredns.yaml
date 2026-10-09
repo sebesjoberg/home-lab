@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/sebesjoberg/home-lab
     targetRevision: main
-    path: infra/coredns/manifests
+    path: infra/kind/coredns/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
