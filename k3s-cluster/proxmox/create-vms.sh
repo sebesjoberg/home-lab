@@ -14,9 +14,9 @@ SSH_KEY_FILE="/tmp/homelab_ssh.pub"
 # ── VM definitions ──────────────────────────────────────────────────
 #   VMID  NAME       IP               CORES  MEMORY  DISK
 VMS=(
-  "110   cp-1       192.168.0.20/24  2      4096    32G"
-  "120   worker-1   192.168.0.21/24  2      10240   50G"
-  "130   worker-2   192.168.0.22/24  2      10240   50G"
+  "110   cp-1       192.168.0.20/24  2      6144    32G"
+  "120   worker-1   192.168.0.21/24  2      9216    50G"
+  "130   worker-2   192.168.0.22/24  2      9216    50G"
 )
 
 # ── Prompt for SSH key if not already set ───────────────────────────

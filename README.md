@@ -1,29 +1,32 @@
 # homelab
 
-Everything in the cluster is declared here. Argo CD watches `main` and applies it.
+Two environments: Kind (local dev) and k3s on Proxmox (always-on).
 
-- `bootstrap/` — the single Application applied by hand, once. It points at `apps/`.
-- `apps/` — one Argo CD Application per thing in the cluster.
-- `infra/` — values and manifests for platform pieces (Argo CD, Sealed Secrets, MetalLB, ingress, ...).
-- `workloads/` — our own applications.
-- `kind/` — local two-node test cluster.
-- `scripts/` — cluster up/down helpers.
+## Structure
 
-## Local test cluster
+- `infra/` — shared base values + `infra/envs/kind/` and `infra/envs/k3s/` overrides.
+- `apps/k3s/` — Argo CD Applications for the k3s cluster.
+- `bootstrap/` — root Argo CD Application for k3s.
+- `k3s-cluster/` — Proxmox VM provisioning and cluster scripts.
+- `kind/` — Kind config and scripts (no Argo CD, direct Helm installs).
+- `workloads/` — applications.
 
-    .\scripts\cluster-up.ps1
-    .\scripts\cluster-down.ps1
+## Kind (local dev)
+
+    .\kind\scripts\cluster-up.ps1
+    .\kind\scripts\cluster-down.ps1
+
+## k3s (Proxmox)
+
+    .\k3s-cluster\scripts\cluster-up.ps1
+    .\k3s-cluster\scripts\cluster-down.ps1
 
 ## Secrets
 
-Never commit a plain `Secret`. Seal it:
+Seal before committing:
 
     kubectl create secret generic NAME -n NS --from-literal=key=value --dry-run=client -o yaml `
       | kubeseal --controller-name sealed-secrets-controller --controller-namespace kube-system -o yaml `
-      > workloads/APP/sealed-secret.yaml
+      > infra/APP/sealed/secret.yaml
 
-Back up the controller key the day the cluster is created:
-
-    kubectl -n kube-system get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml > sealed-secrets-key.yaml
-
-Store that outside the cluster, encrypted. Do not commit it.
+Back up the sealing key on day one. Do not commit it.

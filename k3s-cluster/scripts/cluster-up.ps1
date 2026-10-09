@@ -18,7 +18,7 @@ helm upgrade --install argocd argo/argo-cd `
   --namespace argocd --create-namespace `
   --version 10.10.0 `
   -f "$root\infra\argocd\values.yaml" `
-  -f "$root\infra\k3s\argocd\values.yaml" `
+  -f "$root\infra\envs\k3s\argocd\values.yaml" `
   --wait
 
 kubectl apply -f "$root\bootstrap\root-k3s.yaml"
