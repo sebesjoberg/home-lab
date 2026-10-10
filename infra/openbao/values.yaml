@@ -9,9 +9,6 @@ server:
     - envName: UNSEAL_KEY
       secretName: openbao-bootstrap
       secretKey: unseal-key
-    - envName: USER_PASSWORD
-      secretName: openbao-bootstrap
-      secretKey: user-password
     - envName: OIDC_CLIENT_SECRET
       secretName: openbao-oidc
       secretKey: client-secret

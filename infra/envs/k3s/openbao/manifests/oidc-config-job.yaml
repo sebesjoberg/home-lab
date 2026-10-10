@@ -1,3 +1,9 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openbao-oidc-config
+  namespace: openbao
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -12,30 +18,28 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      serviceAccountName: openbao-oidc-config
       containers:
         - name: configure
           image: quay.io/openbao/openbao:2.7.1
           env:
             - name: BAO_ADDR
               value: http://openbao.openbao.svc:8200
-            - name: USER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: openbao-bootstrap
-                  key: user-password
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: openbao-oidc
                   key: client-secret
+          volumeMounts:
+            - name: bao-token
+              mountPath: /var/run/secrets/openbao
+              readOnly: true
           command:
             - sh
             - -ec
             - |
               until bao status >/dev/null 2>&1; do sleep 5; done
-              export BAO_TOKEN=$(bao login -token-only -method=userpass username=sebesjoberg password="$USER_PASSWORD")
-
-              bao auth list | grep -q '^oidc/' || bao auth enable oidc
+              export BAO_TOKEN=$(bao write -field=token auth/kubernetes/login role=oidc-config jwt=@/var/run/secrets/openbao/token)
 
               until bao write auth/oidc/config \
                 oidc_discovery_url="https://auth.sebhome.homes/application/o/openbao/" \
@@ -58,3 +62,11 @@ spec:
               EOF
 
               bao token revoke -self
+      volumes:
+        - name: bao-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  audience: openbao
+                  expirationSeconds: 600
