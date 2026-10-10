@@ -7,6 +7,11 @@ metadata:
     argocd.argoproj.io/sync-options: Delete=false
 data:
   Corefile: |
+    sebhome.homes:53 {
+        errors
+        forward . 1.1.1.1 1.0.0.1
+        cache 30
+    }
     .:53 {
         errors
         health {
