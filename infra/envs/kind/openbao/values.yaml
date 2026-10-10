@@ -70,27 +70,6 @@ server:
         }
       }
 
-      initialize "userpass" {
-        request "enable" {
-          operation = "update"
-          path      = "sys/auth/userpass"
-          data      = { type = "userpass" }
-        }
-        request "personal-user" {
-          operation = "update"
-          path      = "auth/userpass/users/sebesjoberg"
-          data = {
-            password = {
-              eval_type       = "string"
-              eval_source     = "env"
-              env_var         = "USER_PASSWORD"
-              require_present = true
-            }
-            token_policies = ["admin"]
-          }
-        }
-      }
-
       initialize "kubernetes" {
         request "enable" {
           operation = "update"

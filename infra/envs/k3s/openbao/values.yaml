@@ -60,26 +60,29 @@ server:
       EOT
           }
         }
+        request "oidc-config" {
+          operation = "update"
+          path      = "sys/policies/acl/oidc-config"
+          data = {
+            policy = <<EOT
+      path "auth/oidc/config" {
+        capabilities = ["create", "update", "read"]
+      }
+      path "auth/oidc/role/*" {
+        capabilities = ["create", "update", "read"]
+      }
+      EOT
+          }
+        }
       }
 
-      initialize "userpass" {
+      # OIDC is configured by the openbao-oidc-config job, since Authentik
+      # isn't reachable yet when OpenBao initializes.
+      initialize "oidc" {
         request "enable" {
           operation = "update"
-          path      = "sys/auth/userpass"
-          data      = { type = "userpass" }
-        }
-        request "personal-user" {
-          operation = "update"
-          path      = "auth/userpass/users/sebesjoberg"
-          data = {
-            password = {
-              eval_type       = "string"
-              eval_source     = "env"
-              env_var         = "USER_PASSWORD"
-              require_present = true
-            }
-            token_policies = ["admin"]
-          }
+          path      = "sys/auth/oidc"
+          data      = { type = "oidc" }
         }
       }
 
@@ -103,6 +106,17 @@ server:
             audience                         = "openbao"
             token_policies                   = ["external-secrets-read"]
             token_ttl                        = "1h"
+          }
+        }
+        request "oidc-config-role" {
+          operation = "update"
+          path      = "auth/kubernetes/role/oidc-config"
+          data = {
+            bound_service_account_names      = ["openbao-oidc-config"]
+            bound_service_account_namespaces = ["openbao"]
+            audience                         = "openbao"
+            token_policies                   = ["oidc-config"]
+            token_ttl                        = "10m"
           }
         }
       }
