@@ -15,6 +15,12 @@ configs:
         end
       end
       return hs
+    # Argo ignores /status updates by default, so a CRD cached before it became
+    # Established stays Progressing forever and blocks sync waves on a fresh cluster.
+    resource.customizations.health.apiextensions.k8s.io_CustomResourceDefinition: |
+      hs = {}
+      hs.status = "Healthy"
+      return hs
   rbac:
     policy.default: ""
     policy.csv: |
