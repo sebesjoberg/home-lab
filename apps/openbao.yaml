@@ -23,6 +23,9 @@ spec:
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       path: infra/openbao/sealed
+    - repoURL: https://github.com/sebesjoberg/home-lab
+      targetRevision: main
+      path: infra/envs/k3s/openbao/manifests
 
   destination:
     server: https://kubernetes.default.svc

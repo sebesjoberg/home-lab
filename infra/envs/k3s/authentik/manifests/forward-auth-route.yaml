@@ -9,7 +9,7 @@ spec:
     - web
   routes:
     - kind: Rule
-      match: Host(`traefik.lab.home`) && PathPrefix(`/outpost.goauthentik.io/`)
+      match: Host(`traefik.sebhome.homes`) && PathPrefix(`/outpost.goauthentik.io/`)
       priority: 100
       services:
         - name: authentik-server

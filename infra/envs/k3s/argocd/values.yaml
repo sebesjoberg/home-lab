@@ -1,12 +1,12 @@
 global:
-  domain: argocd.lab.home
+  domain: argocd.sebhome.homes
 
 configs:
   cm:
-    url: http://argocd.lab.home
+    url: https://argocd.sebhome.homes
     oidc.config: |
       name: Authentik
-      issuer: http://auth.lab.home/application/o/argocd/
+      issuer: https://auth.sebhome.homes/application/o/argocd/
       clientID: argocd
       clientSecret: $argocd-oidc:clientSecret
       requestedScopes: ["openid", "profile", "email"]

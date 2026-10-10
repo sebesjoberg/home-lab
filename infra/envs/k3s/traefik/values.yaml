@@ -2,6 +2,9 @@ ports:
   web:
     exposedPort: 80
     asDefault: true
+    forwardedHeaders:
+      trustedIPs:
+        - 10.42.0.0/16
   websecure:
     asDefault: true
 
@@ -16,4 +19,4 @@ providers:
 
 ingressRoute:
   dashboard:
-    matchRule: Host(`traefik.lab.home`)
+    matchRule: Host(`traefik.sebhome.homes`)
