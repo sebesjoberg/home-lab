@@ -21,6 +21,6 @@ alloy:
       // 3. Skicka allting direkt till din Loki-service
       loki.write "local_loki" {
         endpoint {
-          url = "http://cluster.local"
+          url = "http://loki-service.monitoring.svc.cluster.local:3100"
         }
       }
