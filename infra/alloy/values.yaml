@@ -1,31 +1,31 @@
 alloy:
-  # 1. Tvinga chartet att montera in nodens loggmapp (/var/log/pods) i containrarna!
   mounts:
     varlog: true
 
-  # 2. Sätt rätt stabilitetsnivå så att Loki-komponenter tillåts köras
   stabilityLevel: "public-preview"
 
-  # 3. Klistra in din logg-pipeline under configMap.content
   configMap:
     create: true
     content: |
-      // API-upptäckt av poddar i ditt k3s/kind-kluster
+      // 1. Hämta alla aktiva poddar i klustret
       discovery.kubernetes "pods" {
         role = "pod"
       }
 
-      // Matcha filerna på nodens disk och tagga dem med metadata
+      // 2. Översätt Kubernetes-metadata till rätt loggmappar på disken
       discovery.relabel "pod_logs" {
         targets = discovery.kubernetes.pods.targets
 
+        // Denna regel hittar rätt loggfil baserat på namespace, podnamn och containernamn
         rule {
-          source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
-          separator     = "/"
+          source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name", "__meta_kubernetes_pod_container_name"]
+          separator     = "_"
           action        = "replace"
-          replacement   = "/var/log/pods/*$1/*.log"
+          replacement   = "/var/log/pods/$1_$2_*/$3/*.log"
           target_label  = "__path__"
         }
+
+        // Spara snygga etiketter till Loki
         rule {
           source_labels = ["__meta_kubernetes_namespace"]
           target_label  = "namespace"
@@ -40,13 +40,13 @@ alloy:
         }
       }
 
-      // Strömma loggarna från filerna
+      // 3. Starta loggmotorn och läs filerna
       loki.source.file "kubernetes_pods" {
         targets    = discovery.relabel.pod_logs.output
         forward_to = [loki.write.local_loki.receiver]
       }
 
-      // Skicka allt till din fungerande interna Loki-service
+      // 4. Skicka loggarna till din fungerande Loki-service
       loki.write "local_loki" {
         endpoint {
           url = "http://cluster.local"
