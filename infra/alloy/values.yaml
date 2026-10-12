@@ -17,11 +17,11 @@ alloy:
         targets = discovery.kubernetes.pods.targets
 
         // Denna regel hittar rätt loggfil baserat på namespace, podnamn och containernamn
-        rule {
+         rule {
           source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name", "__meta_kubernetes_pod_container_name"]
           separator     = "_"
           action        = "replace"
-          replacement   = "/var/log/pods/$1_$2_*/$3/*.log"
+          replacement   = "/var/log/pods/$$1_$$2_*/$$3/*.log"
           target_label  = "__path__"
         }
 
