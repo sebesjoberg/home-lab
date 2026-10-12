@@ -7,18 +7,15 @@ class KubernetesClusterTest(HttpUser):
     @task(3)
     def test_traefik_and_authentik(self):
         """Testar Authentik (Högsta prioritet/vikt då Authentik drar mest CPU)"""
-        headers = {"Host": "auth.lab.home"}
         # Vi antar att /-routen ger en login-sida (GET)
-        self.client.get("/", headers=headers, name="Authentik - Login Page")
+        self.client.get("https://auth.sebhome.homes", name="Authentik - Login Page")
 
     @task(2)
     def test_argocd(self):
         """Testar ArgoCD-gränssnittet"""
-        headers = {"Host": "argocd.lab.home"}
-        self.client.get("/", headers=headers, name="ArgoCD - UI")
+        self.client.get("https://argocd.sebhome.homes", name="ArgoCD - UI")
 
     @task(1)
     def test_openbao(self):
         """Testar OpenBao/Vault-gränssnittet"""
-        headers = {"Host": "bao.lab.home"}
-        self.client.get("/", headers=headers, name="OpenBao - UI")
+        self.client.get("https://bao.sebhome.homes", name="OpenBao - UI")
