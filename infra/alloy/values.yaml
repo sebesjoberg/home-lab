@@ -1,0 +1,44 @@
+alloy:
+  config: |
+    // 1. API-upptäckt av poddar i klustret
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+    // 2. Matcha loggfiler på noden och tagga med metadata (namespace, pod, container)
+    discovery.relabel "pod_logs" {
+      targets = discovery.kubernetes.pods.targets
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+        separator     = "/"
+        action        = "replace"
+        replacement   = "/var/log/pods/*$1/*.log"
+        target_label  = "__path__"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+    }
+
+    // 3. Strömma loggarna från filerna
+    loki.source.file "kubernetes_pods" {
+      targets    = discovery.relabel.pod_logs.output
+      forward_to = [loki.write.local_loki.receiver]
+    }
+
+    // 4. Skicka till din manuella Loki-service i monitoring-namespacet
+    loki.write "local_loki" {
+      endpoint {
+        url = "http://cluster.local"
+      }
+    }
