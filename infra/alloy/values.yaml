@@ -56,41 +56,10 @@ alloy:
         }
       }
 
-      loki.source.kubernetes "pods" {
-        targets    = discovery.relabel.pods.output
-        forward_to = [loki.process.drop_noise.receiver]
-      }
-
-      // Drops log lines that match the regex. Add more with |.
-      loki.process "drop_noise" {
-        stage.drop {
-          expression          = "kube-probe|goauthentik.io/healthcheck|grpc.health.v1.Health"
-          drop_counter_reason = "healthchecks"
-        }
-
-        forward_to = [loki.write.local_loki.receiver]
-      }
-
       loki.write "local_loki" {
         endpoint {
           url = "http://loki-service.monitoring:3100/loki/api/v1/push"
         }
       }
         forward_to = [loki.process.drop_noise.receiver]
-      }
-
-      // Drops log lines that match the regex. Add more with |.
-      loki.process "drop_noise" {
-        stage.drop {
-          expression          = "kube-probe|goauthentik.io/healthcheck|grpc.health.v1.Health"
-          drop_counter_reason = "healthchecks"
-        }
-
-        forward_to = [loki.write.local_loki.receiver]
-      }
-
-      loki.write "local_loki" {
-        endpoint {
-          url = "http://loki-service.monitoring:3100/loki/api/v1/push"
-        }
       }
