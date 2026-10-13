@@ -2,6 +2,9 @@ controller:
   type: deployment
   replicas: 1
 
+configReloader:
+  enabled: false
+
 alloy:
   stabilityLevel: "public-preview"
 
