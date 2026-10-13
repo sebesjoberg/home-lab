@@ -1,14 +1,27 @@
+controller:
+  type: deployment
+  replicas: 1
+
 alloy:
   stabilityLevel: "public-preview"
 
-  clustering:
-    enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
 
   configMap:
     create: true
     content: |
       discovery.kubernetes "pods" {
         role = "pod"
+
+        // FILTER A: only collect from these namespaces.
+        // namespaces {
+        //   names = ["authentik", "argocd"]
+        // }
       }
 
       discovery.relabel "pods" {
@@ -43,13 +56,37 @@ alloy:
         }
       }
 
-      loki.source.kubernetes "local_pods" {
+      loki.source.kubernetes "pods" {
         targets    = discovery.relabel.pods.output
-        forward_to = [loki.write.local_loki.receiver]
+        forward_to = [loki.process.drop_noise.receiver]
+      }
 
-        clustering {
-          enabled = true
+      // Drops log lines that match the regex. Add more with |.
+      loki.process "drop_noise" {
+        stage.drop {
+          expression          = "kube-probe|goauthentik.io/healthcheck|grpc.health.v1.Health"
+          drop_counter_reason = "healthchecks"
         }
+
+        forward_to = [loki.write.local_loki.receiver]
+      }
+
+      loki.write "local_loki" {
+        endpoint {
+          url = "http://loki-service.monitoring:3100/loki/api/v1/push"
+        }
+      }
+        forward_to = [loki.process.drop_noise.receiver]
+      }
+
+      // Drops log lines that match the regex. Add more with |.
+      loki.process "drop_noise" {
+        stage.drop {
+          expression          = "kube-probe|goauthentik.io/healthcheck|grpc.health.v1.Health"
+          drop_counter_reason = "healthchecks"
+        }
+
+        forward_to = [loki.write.local_loki.receiver]
       }
 
       loki.write "local_loki" {
