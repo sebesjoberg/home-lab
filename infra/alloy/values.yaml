@@ -61,5 +61,3 @@ alloy:
           url = "http://loki-service.monitoring:3100/loki/api/v1/push"
         }
       }
-        forward_to = [loki.process.drop_noise.receiver]
-      }
