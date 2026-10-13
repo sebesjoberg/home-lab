@@ -20,3 +20,6 @@ spec:
           image: grafana/grafana:13.0
           ports:
             - containerPort: 3000
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: https://grafana.sebhome.homes
