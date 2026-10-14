@@ -20,9 +20,6 @@ collectors:
       prometheus.scrape "proxmox" {
         targets = [{"__address__" = "192.168.0.10:9100", "instance" = "proxmox"}]
         job_name = "proxmox"
-        clustering {
-          enabled = true
-        }
         forward_to = [prometheus.remote_write.prometheus.receiver]
       }
 
