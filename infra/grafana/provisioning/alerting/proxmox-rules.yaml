@@ -54,7 +54,7 @@ groups:
               type: threshold
         noDataState: NoData
         execErrState: Error
-        for: 5m
+        for: 1m
         keepFiringFor: 2m
         annotations:
           description: Proxmox CPU has been above 85°C for 5 min. Check vents/fan (laptop on a soft surface?) and what's using CPU in Proxmox → node → Summary.
