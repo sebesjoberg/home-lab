@@ -23,8 +23,6 @@ spec:
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       path: infra/grafana/provisioning
-      helm:
-        releaseName: grafana-provisioning
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
