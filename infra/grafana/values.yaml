@@ -25,7 +25,7 @@ grafana.ini:
     use_refresh_token: true
     role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
   users:
-    default_theme: system
+    default_theme: dark
 
 ingress:
   enabled: true
