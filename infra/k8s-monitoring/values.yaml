@@ -36,7 +36,7 @@ hostMetrics:
     metricsTuning:
       useDefaultAllowList: false
 
-podLogsViaLoki:
+podLogsViaKubernetesApi:
   enabled: true
 
 clusterEvents:
