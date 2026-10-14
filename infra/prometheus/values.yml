@@ -1,0 +1,50 @@
+server:
+  extraFlags:
+    - web.enable-lifecycle
+    - web.enable-remote-write-receiver
+  retention: 15d
+  retentionSize: 8GB
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+    annotations:
+      argocd.argoproj.io/sync-options: Delete=false
+  strategy:
+    type: Recreate
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+# Alloy collects everything; these would duplicate it
+alertmanager:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+
+# Turn off the built-in scrape jobs; only keep Prometheus scraping itself
+scrapeConfigs:
+  kubernetes-api-servers:
+    enabled: false
+  kubernetes-nodes:
+    enabled: false
+  kubernetes-nodes-cadvisor:
+    enabled: false
+  kubernetes-service-endpoints:
+    enabled: false
+  kubernetes-service-endpoints-slow:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  kubernetes-services:
+    enabled: false
+  kubernetes-pods:
+    enabled: false
+  kubernetes-pods-slow:
+    enabled: false
