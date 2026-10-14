@@ -9,3 +9,5 @@ authentik overall draws themsot resources, could we trim it soemhow?
 Add pvc for loki, or take it in witha  helmc hart when done doing it manually.
 
 add route for loki/prometheus also? put them behind authentik?
+
+the dashboard, can things be hiddenf ro the workers and the controlplane? can we see a graph for their ram used? and disk usage? and cpu usage over time isntead? all of it

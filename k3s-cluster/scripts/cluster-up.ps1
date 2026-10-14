@@ -6,12 +6,17 @@ $PSNativeCommandUseErrorActionPreference = $true
 $root = Split-Path (Split-Path $PSScriptRoot)
 $user = "sebastian"
 $ssh = @("-o", "StrictHostKeyChecking=accept-new")
+$proxmox = "192.168.0.10"
 
 # Parse IPs from create-vms.sh - first is the control plane, rest are workers
 $nodes = @(Select-String -Path "$root\k3s-cluster\proxmox\create-vms.sh" -Pattern '(\d+\.\d+\.\d+\.\d+)/\d+' |
   ForEach-Object { $_.Matches[0].Groups[1].Value })
 $cp = $nodes[0]
 $workers = $nodes | Select-Object -Skip 1
+
+# Proxmox host exporters run outside the cluster; Alloy scrapes them.
+Write-Host "Ensuring exporters on Proxmox $proxmox..." -ForegroundColor Yellow
+ssh @ssh "root@${proxmox}" "dpkg -s prometheus-node-exporter prometheus-node-exporter-collectors nvme-cli >/dev/null 2>&1 || { apt-get update -qq; apt-get install -y prometheus-node-exporter prometheus-node-exporter-collectors nvme-cli; }; systemctl enable --now prometheus-node-exporter prometheus-node-exporter-nvme.timer; systemctl start prometheus-node-exporter-nvme.service"
 
 # Control plane. Traefik is installed by Argo CD, so disable the bundled one.
 Write-Host "Installing k3s server on $cp..." -ForegroundColor Yellow
@@ -32,7 +37,7 @@ New-Item -ItemType Directory -Force $kubeDir | Out-Null
 (ssh @ssh "${user}@${cp}" "sudo cat /etc/rancher/k3s/k3s.yaml") -join "`n" `
   -replace '127\.0\.0\.1', $cp `
   -replace '(?m)^(\s*(-\s*)?(name|cluster|user|current-context):\s*)default\s*$', '${1}k3s-homelab' |
-  Set-Content -NoNewline $k3sConfig
+Set-Content -NoNewline $k3sConfig
 if (Test-Path $kubeConfig) {
   foreach ($kind in "context", "cluster", "user") {
     try { kubectl config "delete-$kind" k3s-homelab --kubeconfig $kubeConfig 2>$null | Out-Null } catch {}
