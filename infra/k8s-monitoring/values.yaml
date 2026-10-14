@@ -1,0 +1,47 @@
+cluster:
+  name: k3s-homelab
+
+destinations:
+  prometheus:
+    type: prometheus
+    url: http://prometheus-server.monitoring.svc/api/v1/write
+  loki:
+    type: loki
+    url: http://loki.monitoring.svc:3100/loki/api/v1/push
+
+# One Alloy per node does everything: metrics (targets shared between
+# instances through clustering), pod logs from the node's disk, and events.
+collectors:
+  alloy:
+    presets: [clustered, daemonset, filesystem-log-reader]
+    extraConfig: |
+      prometheus.scrape "proxmox" {
+        targets = [{"__address__" = "192.168.0.10:9100", "instance" = "proxmox"}]
+        job_name = "proxmox"
+        clustering {
+          enabled = true
+        }
+        forward_to = [prometheus.remote_write.prometheus.receiver]
+      }
+
+clusterMetrics:
+  enabled: true
+
+hostMetrics:
+  enabled: true
+  linuxHosts:
+    enabled: true
+    metricsTuning:
+      useDefaultAllowList: false
+
+podLogsViaLoki:
+  enabled: true
+
+clusterEvents:
+  enabled: true
+
+telemetryServices:
+  kube-state-metrics:
+    deploy: true
+  node-exporter:
+    deploy: true

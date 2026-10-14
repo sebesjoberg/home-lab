@@ -1,0 +1,10 @@
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: Sebastian Sjöberg (via nfty)
+    receivers:
+      - uid: bg133e4r32whsb
+        type: webhook
+        settings:
+          url: https://ntfy.sh/sebhomes-alerts?template=grafana
+        disableResolveMessage: false

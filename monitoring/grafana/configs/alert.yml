@@ -1,0 +1,66 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: proxmox
+    folder: Homelab
+    interval: 1m
+    rules:
+      - uid: fg133vesmaoe8a
+        title: CPU hot (Proxmox)
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: ag12s76li2y9sc
+            model:
+              datasource:
+                type: prometheus
+                uid: ag12s76li2y9sc
+              editorMode: code
+              expr: max(node_hwmon_temp_celsius{instance="proxmox"} * on (instance, chip, sensor) group_left node_hwmon_sensor_label{instance="proxmox", label="Tctl"})
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            queryType: expression
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 85
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        keepFiringFor: 2m
+        annotations:
+          description: Proxmox CPU has been above 85°C for 5 min. Check vents/fan (laptop on a soft surface?) and what's using CPU in Proxmox → node → Summary.
+          summary: "{{ if gt $values.A.Value 90.0 }}\U0001F525{{ else }}\U0001F321️{{ end }} CPU {{ printf \"%.0f\" $values.A.Value }}°C (limit 85°C)"
+        labels:
+          severity: warning
+        isPaused: false
+        notification_settings:
+          receiver: Sebastian Sjöberg (via nfty)
