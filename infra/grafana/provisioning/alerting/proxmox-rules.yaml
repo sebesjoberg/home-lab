@@ -33,7 +33,7 @@ groups:
               conditions:
                 - evaluator:
                     params:
-                      - 50
+                      - 85
                     type: gt
                   operator:
                     type: and
@@ -54,7 +54,7 @@ groups:
               type: threshold
         noDataState: NoData
         execErrState: Error
-        for: 1m
+        for: 5m
         keepFiringFor: 2m
         annotations:
           description: Proxmox CPU has been above 85°C for 5 min. Check vents/fan (laptop on a soft surface?) and what's using CPU in Proxmox → node → Summary.
