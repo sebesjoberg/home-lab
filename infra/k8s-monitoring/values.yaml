@@ -9,8 +9,7 @@ destinations:
     type: loki
     url: http://loki.monitoring.svc:3100/loki/api/v1/push
 
-# One Alloy per node does everything: metrics (targets shared between
-# instances through clustering), pod logs from the node's disk, and events.
+# One Alloy for the whole cluster to save ram/cpu, reads trough kube api.
 collectors:
   alloy:
     presets: [deployment]
