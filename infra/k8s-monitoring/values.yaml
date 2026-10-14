@@ -1,6 +1,4 @@
-cluster:
-  name: k3s-homelab
-
+# cluster.name and env-specific scrapes are in infra/envs/<env>/k8s-monitoring/values.yaml
 destinations:
   prometheus:
     type: prometheus
@@ -15,12 +13,6 @@ collectors:
     presets: [deployment]
     controller:
       replicas: 1
-    extraConfig: |
-      prometheus.scrape "proxmox" {
-        targets = [{"__address__" = "192.168.0.10:9100", "instance" = "proxmox"}]
-        job_name = "proxmox"
-        forward_to = [prometheus.remote_write.prometheus.receiver]
-      }
 
 clusterMetrics:
   enabled: true

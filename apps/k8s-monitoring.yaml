@@ -13,6 +13,7 @@ spec:
         releaseName: k8s-monitoring
         valueFiles:
           - $values/infra/k8s-monitoring/values.yaml
+          - $values/infra/envs/k3s/k8s-monitoring/values.yaml
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values

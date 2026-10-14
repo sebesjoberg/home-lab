@@ -5,4 +5,4 @@ server:
 
 authentik:
   web:
-    base_url: htttp://auth.localtest.me:8080
+    base_url: http://auth.localtest.me:8080

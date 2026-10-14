@@ -1,0 +1,12 @@
+cluster:
+  name: k3s-homelab
+
+# The Proxmox host runs node-exporter outside the cluster (set up by cluster-up.ps1)
+collectors:
+  alloy:
+    extraConfig: |
+      prometheus.scrape "proxmox" {
+        targets = [{"__address__" = "192.168.0.10:9100", "instance" = "proxmox"}]
+        job_name = "proxmox"
+        forward_to = [prometheus.remote_write.prometheus.receiver]
+      }

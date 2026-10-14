@@ -78,3 +78,4 @@ Write-Host "Log in with Authentik (about 5 minutes after startup):" -ForegroundC
 Write-Host "  http://auth.sebhome.homes      Authentik" -ForegroundColor Green
 Write-Host "  http://argocd.sebhome.homes     Argo CD" -ForegroundColor Green
 Write-Host "  http://bao.sebhome.homes        OpenBao" -ForegroundColor Green
+Write-Host "  http://grafana.sebhome.homes    Grafana" -ForegroundColor Green

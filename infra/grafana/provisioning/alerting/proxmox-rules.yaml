@@ -13,11 +13,11 @@ groups:
             relativeTimeRange:
               from: 600
               to: 0
-            datasourceUid: ag12s76li2y9sc
+            datasourceUid: prometheus
             model:
               datasource:
                 type: prometheus
-                uid: ag12s76li2y9sc
+                uid: prometheus
               editorMode: code
               expr: max(node_hwmon_temp_celsius{instance="proxmox"} * on (instance, chip, sensor) group_left node_hwmon_sensor_label{instance="proxmox", label="Tctl"})
               instant: true

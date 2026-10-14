@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: grafana-env
+  namespace: monitoring
+spec:
+  encryptedData:
+    NTFY_URL: AgCR1gIIedXtNztPW59WVlacQLWviOQFuhjPm7GTXq7cvjaPrMc6m7GYqps2RE6IBc4ox+/BZTAFn33/rYrMLVMGGAyK/u9pTytICunxcqra9NJg55oxuZ466LtMWA5hJ5mQCA2ZSZUxezmF7OvP/d4IYtMipm6j7up8CKvsl0u1EhNf7UtwsZeWo7Wr6zTJBbMRGgKd0ZETs2g3mnY/v3MoNghYR8Xk/zfgTruHUacTrwCNIttIldvZfaUSdA+Oh2oIYJHOAdnGa5M63VZhgsXdvdJod9vPc2nRO/mqXBXYO8Bpn/goYUsM7lwy8I4SPYcd/bEj+N9Fj0Z+ZxhUdvRKWA4tcLAtTqRvmF24VZwaxuUbqJo8o8d/CfkjaBiebyX7A+ohbzQtqySV34mZrGWQALazY3bQjOqetFyuRY5H8a21kCFIisjre7+BGJiS+BATjNtDuy0AavVhedidStc0T+HX9I8or2kZgMKSV7kvU/vO6fyH/vZIKzS2tqw4CFjsy4og+CPKkrR3XZAjEzBrGbnkWRfaVlwTwh58tQdNZT8G6rqiQh93EYucqxAbAJnS5SU5X1zbp6OJNF2GnJdS/yO3LSd1K8CQtQDq4XbSN/mohp7L1ZTkP20QrSIQZ04a6SlVfX4hAN4l4/uqkHJB+MD9DTakvBr0Zw1LxLd+SrQfYPXUD7HMUuEMdMD+GKkc3fzlqeQGEuba7qRw25YMRIq4p5HmaJSQlgg2lCQsI4VlFMkjGJ0U6fPqBUTWuX8=
+  template:
+    metadata:
+      name: grafana-env
+      namespace: monitoring

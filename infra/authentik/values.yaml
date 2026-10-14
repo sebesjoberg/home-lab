@@ -30,6 +30,11 @@ global:
         secretKeyRef:
           name: authentik-oidc-clients
           key: openbao
+    - name: GRAFANA_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: authentik-oidc-clients
+          key: grafana
 
 blueprints:
   configMaps:

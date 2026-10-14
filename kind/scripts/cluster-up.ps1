@@ -70,8 +70,41 @@ kubectl apply -f "$root\infra\external-secrets\manifests"
 # CoreDNS
 kubectl apply -f "$root\infra\envs\kind\coredns\manifests"
 
+# Monitoring: Prometheus + Loki store, Alloy (k8s-monitoring) collects, Grafana shows
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
+helm repo add grafana https://grafana.github.io/helm-charts --force-update
+helm repo add grafana-community https://grafana-community.github.io/helm-charts --force-update
+helm repo update prometheus-community grafana grafana-community
+kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+helm upgrade --install prometheus prometheus-community/prometheus `
+  --namespace monitoring `
+  --version 29.37.0 `
+  -f "$root\infra\prometheus\values.yaml" `
+  --wait
+helm upgrade --install loki grafana/loki `
+  --namespace monitoring `
+  --version 7.3.0 `
+  -f "$root\infra\loki\values.yaml" `
+  --wait
+helm upgrade --install k8s-monitoring grafana/k8s-monitoring `
+  --namespace monitoring `
+  --version 4.5.3 `
+  -f "$root\infra\k8s-monitoring\values.yaml" `
+  -f "$root\infra\envs\kind\k8s-monitoring\values.yaml" `
+  --wait
+kubectl apply -f "$root\infra\grafana\sealed"
+helm upgrade --install grafana-provisioning "$root\infra\grafana\provisioning" `
+  --namespace monitoring
+helm upgrade --install grafana grafana-community/grafana `
+  --namespace monitoring `
+  --version 13.5.1 `
+  -f "$root\infra\grafana\values.yaml" `
+  -f "$root\infra\envs\kind\grafana\values.yaml" `
+  --wait
+
 Write-Host ""
 Write-Host "Cluster ready (about 5 minutes for Authentik):" -ForegroundColor Green
 Write-Host "  http://auth.localtest.me:8080     Authentik" -ForegroundColor Green
 Write-Host "  http://bao.localtest.me:8080      OpenBao" -ForegroundColor Green
 Write-Host "  http://traefik.localtest.me:8080  Traefik" -ForegroundColor Green
+Write-Host "  http://grafana.localtest.me:8080  Grafana" -ForegroundColor Green

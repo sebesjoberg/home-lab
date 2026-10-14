@@ -6,5 +6,6 @@ contactPoints:
       - uid: bg133e4r32whsb
         type: webhook
         settings:
-          url: https://ntfy.sh/sebhomes-alerts?template=grafana
+          # From the grafana-env sealed secret
+          url: $NTFY_URL
         disableResolveMessage: false

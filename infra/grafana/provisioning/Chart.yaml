@@ -1,0 +1,4 @@
+apiVersion: v2
+name: grafana-provisioning
+description: Wraps the raw dashboard and alerting files in this folder into ConfigMaps for Grafana's sidecars
+version: 1.0.0

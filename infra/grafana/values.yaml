@@ -1,0 +1,84 @@
+# Secrets live in infra/grafana/sealed:
+#   grafana      admin-user, admin-password (fallback login: /login?disableAutoLogin), oidc-client-secret
+#   grafana-env  env vars that provisioning files can reference as $NAME (e.g. $NTFY_URL)
+admin:
+  existingSecret: grafana
+
+envFromSecret: grafana-env
+
+envValueFrom:
+  GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+    secretKeyRef:
+      name: grafana
+      key: oidc-client-secret
+
+# Host-specific URLs are in infra/envs/<env>/grafana/values.yaml
+grafana.ini:
+  auth:
+    oauth_auto_login: true
+  auth.generic_oauth:
+    enabled: true
+    name: Authentik
+    client_id: grafana
+    scopes: openid email profile
+    allow_sign_up: true
+    use_refresh_token: true
+    role_attribute_path: contains(groups[*], 'admins') && 'Admin' || 'Viewer'
+  users:
+    default_theme: system
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+
+persistence:
+  enabled: true
+  size: 1Gi
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
+
+# RWO volume, so the old pod must stop before the new one starts
+deploymentStrategy:
+  type: Recreate
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: prometheus
+        uid: prometheus
+        type: prometheus
+        url: http://prometheus-server.monitoring.svc
+        access: proxy
+        isDefault: true
+      - name: loki
+        uid: loki
+        type: loki
+        url: http://loki.monitoring.svc:3100
+        access: proxy
+
+# Dashboard and alerting files in infra/grafana/provisioning become ConfigMaps
+# (small local chart there), which these sidecars load into Grafana.
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    folderAnnotation: grafana_folder
+    provider:
+      foldersFromFilesStructure: true
+      allowUiUpdates: true
+  alerts:
+    enabled: true
+    label: grafana_alert
+    labelValue: "1"
+
+testFramework:
+  enabled: false

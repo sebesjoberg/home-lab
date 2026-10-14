@@ -49,3 +49,17 @@ If it is missing, a new key is generated and old sealed files won't decrypt. Bac
 
 Put it in `infra/<app>/sealed/` (new app: add the folder to `apps/<app>.yaml` and the Kind
 script), then reference `NAME` from the app's values. Verify with `kubectl get secret NAME -n NS`.
+
+## Grafana dashboards and alerts
+
+Build in the Grafana UI, export, and save the raw export as a file in `infra/grafana/provisioning/`:
+
+- **Dashboard:** *Export > Export as JSON* (Classic or V2 resource, "Export for sharing externally"
+  off) -> `dashboards/<Folder>/<name>.json`. The subfolder becomes the Grafana folder.
+- **Alert rules:** *Alert rules > Export* (a rule, group or folder), YAML -> `alerting/<name>.yaml`.
+- **Contact points:** *Contact points > Export*, YAML -> `alerting/contact-points.yaml`. Replace
+  secret values with `$NAME` and add them to the `grafana-env` sealed secret (e.g. `$NTFY_URL`).
+
+Commit and push; the local chart there turns each file into a ConfigMap that Grafana's sidecars
+load. Dashboards stay editable in the UI (export again to keep changes). Provisioned alert rules and
+contact points are read-only in the UI: use *More > Modify export* and save the result over the file.

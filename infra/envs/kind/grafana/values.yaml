@@ -1,0 +1,15 @@
+ingress:
+  hosts:
+    - grafana.localtest.me
+
+# token_url/api_url are called from inside the pod; CoreDNS rewrites
+# auth.localtest.me to Traefik, which listens on 8080 in Kind.
+grafana.ini:
+  server:
+    root_url: http://grafana.localtest.me:8080
+  auth:
+    signout_redirect_url: http://auth.localtest.me:8080/application/o/grafana/end-session/
+  auth.generic_oauth:
+    auth_url: http://auth.localtest.me:8080/application/o/authorize/
+    token_url: http://auth.localtest.me:8080/application/o/token/
+    api_url: http://auth.localtest.me:8080/application/o/userinfo/
