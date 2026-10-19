@@ -1,0 +1,12 @@
+# Databases run on the bare-metal node (labelled and tainted by cluster-up.ps1),
+# which has room for a bigger volume
+server:
+  nodeSelector:
+    sebhome.homes/dedicated: heavy
+  tolerations:
+    - key: sebhome.homes/dedicated
+      value: heavy
+      effect: NoSchedule
+  retentionSize: 45GB
+  persistentVolume:
+    size: 50Gi

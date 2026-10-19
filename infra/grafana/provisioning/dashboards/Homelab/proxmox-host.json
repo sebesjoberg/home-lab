@@ -47,7 +47,7 @@
                       "group": "prometheus",
                       "kind": "DataQuery",
                       "spec": {
-                        "expr": "up{job=\"$job\", instance=\"$instance\"}"
+                        "expr": "up{job=~\"proxmox|integrations/node_exporter\", instance=\"$instance\"}"
                       },
                       "version": "v0"
                     },
@@ -1638,7 +1638,7 @@
       "timezone": "browser",
       "to": "now"
     },
-    "title": "Proxmox Host",
+    "title": "Hosts and VMs",
     "variables": [
       {
         "kind": "DatasourceVariable",
@@ -1661,37 +1661,21 @@
         }
       },
       {
-        "kind": "QueryVariable",
+        "kind": "CustomVariable",
         "spec": {
-          "allowCustomValue": true,
+          "allowCustomValue": false,
           "current": {
-            "text": "proxmox",
-            "value": "proxmox"
+            "text": "Hosts",
+            "value": "!="
           },
-          "definition": "label_values(node_uname_info, job)",
           "hide": "dontHide",
           "includeAll": false,
-          "label": "Job",
+          "label": "Type",
           "multi": false,
-          "name": "job",
+          "name": "kind",
           "options": [],
-          "query": {
-            "datasource": {
-              "name": "${datasource}"
-            },
-            "group": "prometheus",
-            "kind": "DataQuery",
-            "spec": {
-              "query": "label_values(node_uname_info, job)",
-              "refId": "job"
-            },
-            "version": "v0"
-          },
-          "refresh": "onDashboardLoad",
-          "regex": "",
-          "regexApplyTo": "value",
-          "skipUrlSync": false,
-          "sort": "alphabeticalAsc"
+          "query": "Hosts : !=, VMs : =",
+          "skipUrlSync": false
         }
       },
       {
@@ -1702,10 +1686,10 @@
             "text": "proxmox",
             "value": "proxmox"
           },
-          "definition": "label_values(node_uname_info{job=\"$job\"}, instance)",
+          "definition": "label_values(node_dmi_info{system_vendor${kind:raw}\"QEMU\"}, instance)",
           "hide": "dontHide",
           "includeAll": false,
-          "label": "Host",
+          "label": "Machine",
           "multi": false,
           "name": "instance",
           "options": [],
@@ -1716,7 +1700,7 @@
             "group": "prometheus",
             "kind": "DataQuery",
             "spec": {
-              "query": "label_values(node_uname_info{job=\"$job\"}, instance)",
+              "query": "label_values(node_dmi_info{system_vendor${kind:raw}\"QEMU\"}, instance)",
               "refId": "instance"
             },
             "version": "v0"

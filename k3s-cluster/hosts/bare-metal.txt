@@ -1,0 +1,5 @@
+# Bare-metal Ubuntu hosts that join k3s as workers. They are installed by hand,
+# not created by create-vms.sh. The user in cluster-up.ps1 needs your SSH key
+# and passwordless sudo on each host.
+#   IP
+192.168.0.23/24

@@ -8,15 +8,27 @@ $user = "sebastian"
 $ssh = @("-o", "StrictHostKeyChecking=accept-new")
 $proxmox = "192.168.0.10"
 
-# Parse IPs from create-vms.sh - first is the control plane, rest are workers
-$nodes = @(Select-String -Path "$root\k3s-cluster\proxmox\create-vms.sh" -Pattern '(\d+\.\d+\.\d+\.\d+)/\d+' |
-  ForEach-Object { $_.Matches[0].Groups[1].Value })
+# Parse IPs from create-vms.sh and bare-metal.txt - first is the control plane, rest are workers
+function Get-NodeIps($path) {
+  Select-String -Path $path -Pattern '(\d+\.\d+\.\d+\.\d+)/\d+' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+}
+$bareMetal = @(Get-NodeIps "$root\k3s-cluster\hosts\bare-metal.txt")
+$nodes = @(Get-NodeIps "$root\k3s-cluster\proxmox\create-vms.sh") + $bareMetal
 $cp = $nodes[0]
 $workers = $nodes | Select-Object -Skip 1
 
 # Proxmox host exporters run outside the cluster; Alloy scrapes them.
 Write-Host "Ensuring exporters on Proxmox $proxmox..." -ForegroundColor Yellow
 ssh @ssh "root@${proxmox}" "dpkg -s prometheus-node-exporter prometheus-node-exporter-collectors nvme-cli >/dev/null 2>&1 || { apt-get update -qq; apt-get install -y prometheus-node-exporter prometheus-node-exporter-collectors nvme-cli; }; systemctl enable --now prometheus-node-exporter prometheus-node-exporter-nvme.timer; systemctl start prometheus-node-exporter-nvme.service"
+
+# Bare-metal hosts are laptops: keep them awake with the lid closed and CPU boost off
+foreach ($node in $bareMetal) {
+  Write-Host "Preparing bare-metal host $node..." -ForegroundColor Yellow
+  foreach ($script in "ignore-lid.sh", "disable-boost.sh") {
+    # PowerShell pipes with CRLF line endings, which bash can't run
+    Get-Content -Raw "$root\k3s-cluster\hosts\$script" | ssh @ssh "${user}@${node}" "tr -d '\r' | sudo bash -s"
+  }
+}
 
 # Control plane. Traefik is installed by Argo CD, so disable the bundled one.
 Write-Host "Installing k3s server on $cp..." -ForegroundColor Yellow
@@ -56,21 +68,36 @@ Write-Host "Waiting for $($nodes.Count) nodes to be Ready..." -ForegroundColor Y
 while (@(kubectl get nodes -o name).Count -lt $nodes.Count) { Start-Sleep -Seconds 5 }
 kubectl wait --for=condition=Ready nodes --all --timeout=300s
 
+# Bare-metal hosts have a big disk and the whole machine to themselves. Keep them
+# for heavy workloads: those select the label and tolerate the taint.
+foreach ($node in $bareMetal) {
+  $name = (ssh @ssh "${user}@${node}" "hostname").Trim()
+  kubectl label node $name sebhome.homes/dedicated=heavy --overwrite
+  kubectl taint node $name sebhome.homes/dedicated=heavy:NoSchedule --overwrite
+}
+
 if (Test-Path $KeyFile) {
-  kubectl apply -f $KeyFile
+  # The backup carries a resourceVersion, so re-applying it to a running cluster conflicts
+  if (-not (kubectl get -f $KeyFile --ignore-not-found -o name)) {
+    kubectl apply -f $KeyFile
+  }
 }
 else {
   Write-Host "No key at $KeyFile - a new one will be generated. Back it up." -ForegroundColor Yellow
 }
 
-helm repo add argo https://argoproj.github.io/argo-helm --force-update
-helm repo update argo
-helm upgrade --install argocd argo/argo-cd `
-  --namespace argocd --create-namespace `
-  --version 10.10.0 `
-  -f "$root\infra\argocd\values.yaml" `
-  -f "$root\infra\envs\k3s\argocd\values.yaml" `
-  --wait
+# Helm only bootstraps Argo CD; after that it manages itself (apps/argocd.yaml),
+# and a second helm upgrade conflicts with its changes.
+if (-not (kubectl get deployment argocd-server -n argocd --ignore-not-found -o name)) {
+  helm repo add argo https://argoproj.github.io/argo-helm --force-update
+  helm repo update argo
+  helm upgrade --install argocd argo/argo-cd `
+    --namespace argocd --create-namespace `
+    --version 10.10.0 `
+    -f "$root\infra\argocd\values.yaml" `
+    -f "$root\infra\envs\k3s\argocd\values.yaml" `
+    --wait
+}
 
 kubectl apply -f "$root\bootstrap\root-k3s.yaml"
 

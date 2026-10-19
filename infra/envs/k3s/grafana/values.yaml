@@ -11,3 +11,11 @@ grafana.ini:
     auth_url: https://auth.sebhome.homes/application/o/authorize/
     token_url: https://auth.sebhome.homes/application/o/token/
     api_url: https://auth.sebhome.homes/application/o/userinfo/
+
+# Databases run on the bare-metal node (labelled and tainted by cluster-up.ps1)
+nodeSelector:
+  sebhome.homes/dedicated: heavy
+tolerations:
+  - key: sebhome.homes/dedicated
+    value: heavy
+    effect: NoSchedule

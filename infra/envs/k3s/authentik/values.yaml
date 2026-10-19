@@ -1,4 +1,6 @@
 server:
+  # Python web server, so more replicas spread load tests over more cores
+  replicas: 2
   ingress:
     hosts:
       - auth.sebhome.homes
@@ -6,3 +8,26 @@ server:
 authentik:
   web:
     base_url: https://auth.sebhome.homes
+
+# Databases run on the bare-metal node (labelled and tainted by cluster-up.ps1)
+postgresql:
+  primary:
+    nodeSelector:
+      sebhome.homes/dedicated: heavy
+    tolerations:
+      - key: sebhome.homes/dedicated
+        value: heavy
+        effect: NoSchedule
+    # Authentik keeps its cache and sessions in Postgres. max_connections is the
+    # chart default, repeated because this replaces the whole block.
+    extendedConfiguration: |
+      max_connections = 500
+      shared_buffers = 512MB
+      effective_cache_size = 1536MB
+    resources:
+      requests:
+        memory: 768Mi
+      limits:
+        memory: 2Gi
+    persistence:
+      size: 5Gi

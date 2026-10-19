@@ -13,6 +13,7 @@ spec:
         releaseName: loki
         valueFiles:
           - $values/infra/loki/values.yaml
+          - $values/infra/envs/k3s/loki/values.yaml
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values

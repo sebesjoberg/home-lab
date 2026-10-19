@@ -13,6 +13,7 @@ spec:
         releaseName: prometheus
         valueFiles:
           - $values/infra/prometheus/values.yaml
+          - $values/infra/envs/k3s/prometheus/values.yaml
     - repoURL: https://github.com/sebesjoberg/home-lab
       targetRevision: main
       ref: values

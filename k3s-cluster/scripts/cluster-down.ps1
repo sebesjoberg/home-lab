@@ -2,8 +2,8 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path (Split-Path $PSScriptRoot)
 $user = "sebastian"
 
-# Parse IPs from create-vms.sh
-$nodes = Select-String -Path "$root\k3s-cluster\proxmox\create-vms.sh" -Pattern '(\d+\.\d+\.\d+\.\d+)/\d+' |
+# Parse IPs from create-vms.sh and bare-metal.txt
+$nodes = Select-String -Path "$root\k3s-cluster\proxmox\create-vms.sh", "$root\k3s-cluster\hosts\bare-metal.txt" -Pattern '(\d+\.\d+\.\d+\.\d+)/\d+' |
   ForEach-Object { $_.Matches[0].Groups[1].Value }
 
 # Uninstall workers first (reverse order), then control plane last

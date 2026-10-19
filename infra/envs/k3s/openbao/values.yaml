@@ -1,4 +1,12 @@
 server:
+  # Databases run on the bare-metal node (labelled and tainted by cluster-up.ps1)
+  nodeSelector:
+    sebhome.homes/dedicated: heavy
+  tolerations:
+    - key: sebhome.homes/dedicated
+      value: heavy
+      effect: NoSchedule
+
   ingress:
     hosts:
       - host: bao.sebhome.homes
