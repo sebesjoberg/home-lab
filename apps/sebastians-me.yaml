@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sebastians-me
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sebesjoberg/home-lab
+    targetRevision: main
+    path: workloads/sebastians-me
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sebastians-me
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

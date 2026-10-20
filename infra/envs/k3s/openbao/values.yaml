@@ -68,6 +68,17 @@ server:
       EOT
           }
         }
+        request "sebastians-me" {
+          operation = "update"
+          path      = "sys/policies/acl/sebastians-me"
+          data = {
+            policy = <<EOT
+      path "secret/data/sebastians-me/strava" {
+        capabilities = ["read", "create", "update"]
+      }
+      EOT
+          }
+        }
         request "oidc-config" {
           operation = "update"
           path      = "sys/policies/acl/oidc-config"
@@ -113,6 +124,17 @@ server:
             bound_service_account_namespaces = ["external-secrets"]
             audience                         = "openbao"
             token_policies                   = ["external-secrets-read"]
+            token_ttl                        = "1h"
+          }
+        }
+        request "sebastians-me-role" {
+          operation = "update"
+          path      = "auth/kubernetes/role/sebastians-me"
+          data = {
+            bound_service_account_names      = ["sebastians-me"]
+            bound_service_account_namespaces = ["sebastians-me"]
+            audience                         = "openbao"
+            token_policies                   = ["sebastians-me"]
             token_ttl                        = "1h"
           }
         }

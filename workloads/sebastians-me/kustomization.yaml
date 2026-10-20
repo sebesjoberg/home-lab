@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sebastians-me
+resources:
+  - serviceaccount.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - harbor-pull.yaml
+labels:
+  - pairs:
+      app.kubernetes.io/name: sebastians-me
+    includeSelectors: true
+# Bump to release a new version
+images:
+  - name: harbor.sebhome.homes/sebastians-me/sebastians-me
+    newTag: 0.1.0

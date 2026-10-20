@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sebastians-me
+spec:
+  replicas: 1
+  template:
+    spec:
+      serviceAccountName: sebastians-me
+      imagePullSecrets:
+        - name: harbor-pull
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: sebastians-me
+          image: harbor.sebhome.homes/sebastians-me/sebastians-me
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: BAO_ADDR
+              value: http://openbao.openbao.svc:8200
+            - name: BAO_ROLE
+              value: sebastians-me
+            - name: BAO_JWT_PATH
+              value: /var/run/secrets/openbao/token
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: bao-token
+              mountPath: /var/run/secrets/openbao
+              readOnly: true
+      volumes:
+        - name: bao-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  audience: openbao
+                  expirationSeconds: 3600
