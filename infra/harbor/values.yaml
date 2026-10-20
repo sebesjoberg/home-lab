@@ -1,0 +1,76 @@
+# Secrets live in infra/harbor/sealed:
+#   harbor-secrets  HARBOR_ADMIN_PASSWORD, secretKey, secret, CSRF_KEY, JOBSERVICE_SECRET,
+#                   REGISTRY_HTTP_SECRET, REGISTRY_PASSWD, REGISTRY_HTPASSWD, tls.crt, tls.key,
+#                   password (Postgres), oidc-client-secret
+# Argo CD renders with `helm template`, so the chart's lookup() never finds the
+# previous secrets and would generate new random ones on every sync. Set them all here.
+
+# Host-specific URLs and the Authentik login are in infra/envs/<env>/harbor/values.yaml
+expose:
+  type: ingress
+  # TLS ends at Cloudflare (k3s) or isn't used (Kind), so the ingress serves plain HTTP
+  tls:
+    enabled: false
+  ingress:
+    className: traefik
+    # Drop the chart's nginx annotations
+    annotations:
+      ingress.kubernetes.io/ssl-redirect: null
+      ingress.kubernetes.io/proxy-body-size: null
+      nginx.ingress.kubernetes.io/ssl-redirect: null
+      nginx.ingress.kubernetes.io/proxy-body-size: null
+
+existingSecretAdminPassword: harbor-secrets
+existingSecretSecretKey: harbor-secrets
+
+core:
+  existingSecret: harbor-secrets
+  existingXsrfSecret: harbor-secrets
+  # Token signing cert, otherwise regenerated on every sync and all logins drop
+  secretName: harbor-secrets
+
+jobservice:
+  existingSecret: harbor-secrets
+
+registry:
+  existingSecret: harbor-secrets
+  credentials:
+    existingSecret: harbor-secrets
+
+# The chart's internal database only takes its password as a plain value, so Postgres
+# runs from infra/envs/<env>/harbor/manifests instead
+database:
+  type: external
+  external:
+    host: harbor-postgres
+    port: "5432"
+    username: harbor
+    coreDatabase: registry
+    # The chart requires the key to be named "password"
+    existingSecret: harbor-secrets
+
+persistence:
+  enabled: true
+  resourcePolicy: keep
+  persistentVolumeClaim:
+    registry:
+      size: 20Gi
+      annotations:
+        argocd.argoproj.io/sync-options: Delete=false
+    jobservice:
+      jobLog:
+        size: 1Gi
+    redis:
+      size: 1Gi
+    trivy:
+      size: 5Gi
+
+# RWO volumes, so the old pod must stop before the new one starts
+updateStrategy:
+  type: Recreate
+
+trivy:
+  enabled: true
+
+metrics:
+  enabled: true

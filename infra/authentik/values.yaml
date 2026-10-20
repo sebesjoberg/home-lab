@@ -35,6 +35,11 @@ global:
         secretKeyRef:
           name: authentik-oidc-clients
           key: grafana
+    - name: HARBOR_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: authentik-oidc-clients
+          key: harbor
 
 blueprints:
   configMaps:

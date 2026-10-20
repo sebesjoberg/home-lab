@@ -1,0 +1,35 @@
+# No Cloudflare in front here, so no 100 MB request limit on pushes
+externalURL: http://harbor.localtest.me:8080
+
+expose:
+  ingress:
+    hosts:
+      core: harbor.localtest.me
+
+# Same as k3s, see infra/envs/k3s/harbor/values.yaml. The endpoint is called from
+# inside the pod; CoreDNS rewrites auth.localtest.me to Traefik, which listens on 8080 in Kind.
+core:
+  extraEnvVars:
+    - name: OIDC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: harbor-secrets
+          key: oidc-client-secret
+    - name: CONFIG_OVERWRITE_JSON
+      value: >-
+        {"auth_mode": "oidc_auth",
+        "primary_auth_mode": true,
+        "oidc_name": "Authentik",
+        "oidc_endpoint": "http://auth.localtest.me:8080/application/o/harbor/",
+        "oidc_client_id": "harbor",
+        "oidc_client_secret": "$(OIDC_CLIENT_SECRET)",
+        "oidc_scope": "openid,email,profile,offline_access",
+        "oidc_user_claim": "preferred_username",
+        "oidc_groups_claim": "groups",
+        "oidc_admin_group": "admins",
+        "oidc_auto_onboard": true,
+        "oidc_verify_cert": false}
+
+# Trivy downloads a large vulnerability DB; not worth it for local dev
+trivy:
+  enabled: false

@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harbor-postgres
+  namespace: harbor
+spec:
+  selector:
+    app: harbor-postgres
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: harbor-postgres
+  namespace: harbor
+spec:
+  serviceName: harbor-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harbor-postgres
+  template:
+    metadata:
+      labels:
+        app: harbor-postgres
+    spec:
+      # Databases run on the bare-metal node (labelled and tainted by cluster-up.ps1)
+      nodeSelector:
+        sebhome.homes/dedicated: heavy
+      tolerations:
+        - key: sebhome.homes/dedicated
+          value: heavy
+          effect: NoSchedule
+      containers:
+        - name: postgres
+          image: docker.io/library/postgres:17.11-bookworm
+          env:
+            - name: POSTGRES_USER
+              value: harbor
+            - name: POSTGRES_DB
+              value: registry
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-secrets
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "harbor", "-d", "registry"]
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

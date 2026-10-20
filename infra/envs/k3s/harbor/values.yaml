@@ -1,0 +1,49 @@
+externalURL: https://harbor.sebhome.homes
+
+expose:
+  ingress:
+    hosts:
+      core: harbor.sebhome.homes
+
+# Harbor has no env vars for OIDC, so the whole config goes in CONFIG_OVERWRITE_JSON
+# (applied on every start, so UI changes to these settings don't stick).
+# $(OIDC_CLIENT_SECRET) is expanded by Kubernetes from the entry above it.
+core:
+  extraEnvVars:
+    - name: OIDC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: harbor-secrets
+          key: oidc-client-secret
+    - name: CONFIG_OVERWRITE_JSON
+      value: >-
+        {"auth_mode": "oidc_auth",
+        "primary_auth_mode": true,
+        "oidc_name": "Authentik",
+        "oidc_endpoint": "https://auth.sebhome.homes/application/o/harbor/",
+        "oidc_client_id": "harbor",
+        "oidc_client_secret": "$(OIDC_CLIENT_SECRET)",
+        "oidc_scope": "openid,email,profile,offline_access",
+        "oidc_user_claim": "preferred_username",
+        "oidc_groups_claim": "groups",
+        "oidc_admin_group": "admins",
+        "oidc_auto_onboard": true,
+        "oidc_verify_cert": true}
+
+# Databases and image storage run on the bare-metal node (labelled and tainted by cluster-up.ps1)
+redis:
+  internal:
+    nodeSelector:
+      sebhome.homes/dedicated: heavy
+    tolerations:
+      - key: sebhome.homes/dedicated
+        value: heavy
+        effect: NoSchedule
+
+registry:
+  nodeSelector:
+    sebhome.homes/dedicated: heavy
+  tolerations:
+    - key: sebhome.homes/dedicated
+      value: heavy
+      effect: NoSchedule

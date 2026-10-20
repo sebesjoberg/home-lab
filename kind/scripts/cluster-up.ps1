@@ -102,9 +102,23 @@ helm upgrade --install grafana grafana-community/grafana `
   -f "$root\infra\envs\kind\grafana\values.yaml" `
   --wait
 
+# Harbor (no Cloudflare in front, so no upload limit; push to harbor.localtest.me:8080)
+helm repo add harbor https://helm.goharbor.io --force-update
+helm repo update harbor
+kubectl create namespace harbor --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f "$root\infra\harbor\sealed"
+kubectl apply -f "$root\infra\envs\kind\harbor\manifests"
+helm upgrade --install harbor harbor/harbor `
+  --namespace harbor `
+  --version 1.19.4 `
+  -f "$root\infra\harbor\values.yaml" `
+  -f "$root\infra\envs\kind\harbor\values.yaml" `
+  --wait --timeout 10m
+
 Write-Host ""
 Write-Host "Cluster ready (about 5 minutes for Authentik):" -ForegroundColor Green
 Write-Host "  http://auth.localtest.me:8080     Authentik" -ForegroundColor Green
 Write-Host "  http://bao.localtest.me:8080      OpenBao" -ForegroundColor Green
 Write-Host "  http://traefik.localtest.me:8080  Traefik" -ForegroundColor Green
 Write-Host "  http://grafana.localtest.me:8080  Grafana" -ForegroundColor Green
+Write-Host "  http://harbor.localtest.me:8080   Harbor" -ForegroundColor Green
