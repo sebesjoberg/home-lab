@@ -11,6 +11,9 @@ spec:
         - name: harbor-pull
       securityContext:
         runAsNonRoot: true
+        # The image's "node" user; Kubernetes can't check a non-numeric USER
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: sebastians-me
           image: harbor.sebhome.homes/sebastians-me/sebastians-me
