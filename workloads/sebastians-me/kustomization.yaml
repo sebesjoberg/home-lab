@@ -6,6 +6,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - catch-all.yaml
   - harbor-pull.yaml
 labels:
   - pairs:

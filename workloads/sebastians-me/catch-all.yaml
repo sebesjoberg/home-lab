@@ -1,0 +1,26 @@
+# Any *.sebhome.homes host that no other route matches is sent to the site.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: to-site
+spec:
+  redirectRegex:
+    regex: ^.*$
+    replacement: https://me.sebhome.homes/
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: catch-all
+spec:
+  entryPoints:
+    - web
+  routes:
+    # Traefik ranks routes by rule length otherwise, so 1 keeps this below every real host
+    - match: HostRegexp(`^.+$`)
+      priority: 1
+      middlewares:
+        - name: to-site
+      services:
+        - name: sebastians-me
+          port: 80
