@@ -68,20 +68,9 @@ server:
       EOT
           }
         }
-        request "sebastians-me" {
+        request "openbao-config" {
           operation = "update"
-          path      = "sys/policies/acl/sebastians-me"
-          data = {
-            policy = <<EOT
-      path "secret/data/sebastians-me/strava" {
-        capabilities = ["read", "create", "update"]
-      }
-      EOT
-          }
-        }
-        request "oidc-config" {
-          operation = "update"
-          path      = "sys/policies/acl/oidc-config"
+          path      = "sys/policies/acl/openbao-config"
           data = {
             policy = <<EOT
       path "auth/oidc/config" {
@@ -90,13 +79,19 @@ server:
       path "auth/oidc/role/*" {
         capabilities = ["create", "update", "read"]
       }
+      path "sys/policies/acl/*" {
+        capabilities = ["create", "update", "read"]
+      }
+      path "auth/kubernetes/role/*" {
+        capabilities = ["create", "update", "read"]
+      }
       EOT
           }
         }
       }
 
-      # OIDC is configured by the openbao-oidc-config job, since Authentik
-      # isn't reachable yet when OpenBao initializes.
+      # Only runs when OpenBao is first created. OIDC and the app policies and
+      # roles are set by the openbao-config job on every sync instead.
       initialize "oidc" {
         request "enable" {
           operation = "update"
@@ -127,25 +122,14 @@ server:
             token_ttl                        = "1h"
           }
         }
-        request "sebastians-me-role" {
+        request "openbao-config-role" {
           operation = "update"
-          path      = "auth/kubernetes/role/sebastians-me"
+          path      = "auth/kubernetes/role/openbao-config"
           data = {
-            bound_service_account_names      = ["sebastians-me"]
-            bound_service_account_namespaces = ["sebastians-me"]
-            audience                         = "openbao"
-            token_policies                   = ["sebastians-me"]
-            token_ttl                        = "1h"
-          }
-        }
-        request "oidc-config-role" {
-          operation = "update"
-          path      = "auth/kubernetes/role/oidc-config"
-          data = {
-            bound_service_account_names      = ["openbao-oidc-config"]
+            bound_service_account_names      = ["openbao-config"]
             bound_service_account_namespaces = ["openbao"]
             audience                         = "openbao"
-            token_policies                   = ["oidc-config"]
+            token_policies                   = ["openbao-config"]
             token_ttl                        = "10m"
           }
         }

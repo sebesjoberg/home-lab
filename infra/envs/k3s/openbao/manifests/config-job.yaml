@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: openbao-oidc-config
+  name: openbao-config
   namespace: openbao
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: openbao-oidc-config
+  name: openbao-config
   namespace: openbao
   annotations:
     argocd.argoproj.io/hook: PostSync
@@ -18,7 +18,7 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
-      serviceAccountName: openbao-oidc-config
+      serviceAccountName: openbao-config
       containers:
         - name: configure
           image: quay.io/openbao/openbao:2.7.1
@@ -39,7 +39,7 @@ spec:
             - -ec
             - |
               until bao status >/dev/null 2>&1; do sleep 5; done
-              export BAO_TOKEN=$(bao write -field=token auth/kubernetes/login role=oidc-config jwt=@/var/run/secrets/openbao/token)
+              export BAO_TOKEN=$(bao write -field=token auth/kubernetes/login role=openbao-config jwt=@/var/run/secrets/openbao/token)
 
               until bao write auth/oidc/config \
                 oidc_discovery_url="https://auth.sebhome.homes/application/o/openbao/" \
@@ -60,6 +60,19 @@ spec:
                 "token_policies": ["admin"]
               }
               EOF
+
+              # Apps that read their own secrets from OpenBao
+              bao policy write sebastians-me - <<'EOF'
+              path "secret/data/sebastians-me/strava" {
+                capabilities = ["read", "create", "update"]
+              }
+              EOF
+              bao write auth/kubernetes/role/sebastians-me \
+                bound_service_account_names=sebastians-me \
+                bound_service_account_namespaces=sebastians-me \
+                audience=openbao \
+                token_policies=sebastians-me \
+                token_ttl=1h
 
               bao token revoke -self
       volumes:
