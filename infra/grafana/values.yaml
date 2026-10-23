@@ -44,9 +44,13 @@ deploymentStrategy:
 resources:
   requests:
     cpu: 50m
-    memory: 128Mi
+    memory: 384Mi
   limits:
-    memory: 512Mi
+    memory: 1Gi
+
+# Makes the Go GC work harder near the limit instead of getting OOMKilled
+env:
+  GOMEMLIMIT: 900MiB
 
 datasources:
   datasources.yaml:
