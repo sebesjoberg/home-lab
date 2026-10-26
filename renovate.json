@@ -9,5 +9,12 @@
   },
   "kustomize": {
     "enabled": true
-  }
+  },
+  "packageRules": [
+    {
+      "description": "Private Harbor image, bumped manually; hosted Renovate can't reach it",
+      "matchPackageNames": ["harbor.sebhome.homes/**"],
+      "enabled": false
+    }
+  ]
 }
